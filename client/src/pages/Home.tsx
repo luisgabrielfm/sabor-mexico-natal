@@ -251,12 +251,17 @@ export default function Home() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
+      (entries) => entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      }),
       { threshold: 0.1, rootMargin: "0px 0px -40px" },
     );
-    document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
+    document.querySelectorAll(".reveal:not(.is-visible)").forEach((element) => observer.observe(element));
     return () => observer.disconnect();
-  }, []);
+  }, [activeCategory]);
 
   const cartCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
